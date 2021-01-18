@@ -10,21 +10,13 @@ map <- shapefile("./map/TL_SCCO_SIG.shp")
 map <- spTransform(map, CRSobj = CRS('+proj=longlat + ellps=WGS84 +datum=WGS84 +no_defs'))
 new_map <- fortify(map, region = 'SIG_CD')
 new_map$id <- as.numeric(new_map$id)
-seoul_map <- new_map[new_map$id <= 11740,]
+metro_map <- subset(new_map, new_map$id <= 11740 | (new_map$id >= 41000 & new_map$id < 42000)
+   | (id >= 28000 & id < 29000 & long >= 126))
 
 station <- read.csv("./station_coordinate.csv",
                     na.strings = c("", " ", NA),
                     as.is = TRUE,
                     encoding = "UTF-8")
 
-congestion <- read.csv("./congestion.csv", na.strings = c("", " ", "#DIV/0!"), header = TRUE, encoding = "UTF-8")
-
-seoul_station_names <- unique(congestion["X.U.C5ED..U.BA85."])
-seoul_metro <- c('01호선','02호선', '03호선', '04호선', '05호선', '06호선', '07호선', '08호선')
-
-seoul_station <- subset(station, station$X.U.FEFF.line %in% seoul_metro)
-seoul_station <- subset(seoul_station,  seoul_station$name %in% seoul_station_names$X.U.C5ED..U.BA85.)
-
-ggplot() + geom_polygon(data = seoul_map, aes(x=long, y=lat, group = group),
-                        fill='white', color='black') + geom_point(data= seoul_station, aes(x=lng, y=lat, group=X.U.FEFF.line),
-                       fill='black', color='black')
+theme_set(theme_gray(base_family = 'NanumGothic'))
+ggplot() + geom_polygon(data = metro_map, aes(x=long, y=lat, group = group), fill='white', color='black') + geom_point(data= station, aes(x=lng, y=lat, colour=station$X.U.FEFF.line))
