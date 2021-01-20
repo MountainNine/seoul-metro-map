@@ -86,7 +86,7 @@ ggplot(station, aes(x=lng, y=lat)) + geom_polygon(data = metro_map, aes(x=long, 
   geom_point(aes(color=X.U.FEFF.line))
 ```
 
-![](https://github.com/MountainNine/seoul-metro-map/blob/develop/picture/seoul-metro.png)
+![](https://github.com/MountainNine/seoul-metro-map/blob/master/picture/seoul-metro.png)
 
 ## 더 좋은 시각화
 
@@ -108,7 +108,7 @@ ggplot(station, aes(x=lng, y=lat)) + geom_polygon(data = metro_map, aes(x=long, 
 
 그리고 다시 실행해주면 다음과 같은 지도가 나온다.
 
-![](https://github.com/MountainNine/seoul-metro-map/blob/develop/picture/metro_correct_color.png)
+![](https://github.com/MountainNine/seoul-metro-map/blob/master/picture/metro_correct_color.png)
 
 ## 서울만 시각화
 
@@ -144,7 +144,7 @@ ggplot(seoul_station, aes(x=lng, y=lat)) + geom_polygon(data = metro_map, aes(x=
 
 그리고 실행해주면, 다음과 같은 지도가 나온다.
 
-![](https://github.com/MountainNine/seoul-metro-map/blob/develop/picture/well-sized-metro.png)
+![](https://github.com/MountainNine/seoul-metro-map/blob/master/picture/well-sized-metro.png)
 
 ## 느낀 점
 
