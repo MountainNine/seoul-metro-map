@@ -12,7 +12,7 @@
 그 다음, [이 곳](https://observablehq.com/@taekie/seoul_subway_station_coordinate) 에서 실제 지하철역의 위도, 경도 좌표를 다운로드할 수 있다.
 여기서 주의할 점으로, 이 csv 데이터에서 5호선 양평역의 좌표가 경의중앙선 양평역의 좌표로 되어 있다는 점이다. 따라서 5호선 양평역의 좌표를 (37.525648,126.885778)으로 수정해줬다.
 
-## 코딩
+## 코드 작성
 
 ```
 library(ggmap)
@@ -33,10 +33,58 @@ map <- shapefile("./map/TL_SCCO_SIG.shp")
 map <- spTransform(map, CRSobj = CRS('+proj=longlat + ellps=WGS84 +datum=WGS84 +no_defs'))
 new_map <- fortify(map, region = 'SIG_CD')
 new_map$id <- as.numeric(new_map$id)
-metro_map <- subset(new_map, new_map$id <= 11740)
-| (new_map$id >= 41000 & new_map$id < 42000) | (id >= 28000 & id < 29000 & long >= 126))
+metro_map <- subset(new_map, new_map$id <= 11740 | (new_map$id >= 41000 & new_map$id < 42000) | (id >= 28000 & id < 29000 & long >= 126))
 ```
 
 다운로드 받은 공간 데이터 중, .shp의 경로를 넣어주고, 참조한 글을 토대로 위와 같이 작성했다. 
 지하철이 서울에만 운행하는 건 아니기 때문에, 적어도 경기도와 인천은 포함해야 된다. 
 시도코드가 경기도는 41, 인천은 28이라는 점을 감안하여, 마지막 줄을 추가하여, 경기도와 인천을 포함시켰다.
+
+```
+station <- read.csv("./station_coordinate.csv",
+                    na.strings = c("", " ", NA),
+                    as.is = TRUE,
+                    encoding = "UTF-8")
+```
+
+그 다음, 실제 지하철역 좌표 csv를 읽는다. 그냥 읽어오니 인코딩 관련 에러가 발생했고, encoding=UTF-8 파라미터를 추가해주니, 정상적으로 처리되었다.
+
+``` 
+ggplot(station, aes(x=lng, y=lat)) + geom_polygon(data = metro_map, aes(x=long, y=lat, group = group), fill='white', color='black') +
+  geom_point(aes(color=X.U.FEFF.line))
+```
+
+마지막으로 ggplot 라이브러리로 실제 지하철역들의 위치를 시각화했다. geom_polygon으로 수도권 지도를 그리고, geom_point로 지하철역 위치를 점으로 찍었다.
+이 때, 노선별로 다른 색깔의 점을 찍게 했다.
+
+전체 코드와 시각화된 지도는 다음과 같다.
+``` 
+## 1번 코드
+library(ggmap)
+library(ggplot2)
+library(raster)
+library(rgeos)
+library(maptools)
+library(rgdal)
+Sys.setlocale("LC_ALL",".1251")
+
+##2번 코드
+map <- shapefile("./map/TL_SCCO_SIG.shp")
+map <- spTransform(map, CRSobj = CRS('+proj=longlat + ellps=WGS84 +datum=WGS84 +no_defs'))
+new_map <- fortify(map, region = 'SIG_CD')
+new_map$id <- as.numeric(new_map$id)
+metro_map <- subset(new_map, new_map$id <= 11740 | (new_map$id >= 41000 & new_map$id < 42000) | (id >= 28000 & id < 29000 & long >= 126))
+
+##3번 코드
+station <- read.csv("./station_coordinate.csv",
+                    na.strings = c("", " ", NA),
+                    as.is = TRUE,
+                    encoding = "UTF-8")
+
+##4번 코드
+ggplot(station, aes(x=lng, y=lat)) + geom_polygon(data = metro_map, aes(x=long, y=lat, group = group), fill='white', color='black') +
+  geom_point(aes(color=X.U.FEFF.line))
+```
+
+![](https://github.com/MountainNine/seoul-metro-map/blob/develop/picture/seoul-metro.png)
+
