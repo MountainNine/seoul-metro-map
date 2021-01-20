@@ -88,3 +88,65 @@ ggplot(station, aes(x=lng, y=lat)) + geom_polygon(data = metro_map, aes(x=long, 
 
 ![](https://github.com/MountainNine/seoul-metro-map/blob/develop/picture/seoul-metro.png)
 
+## 더 좋은 시각화
+
+막상 지도를 봐보니, 실제 노선 색깔과 다르며, 어떤 노선인지 구분이 잘 안되었다. 그래서 3번 코드와 4번 코드 사이에, 다음 코드를 추가했다.
+
+``` 
+metro_palette <- c('#003DA5','#77C4A3','#0C8E72', '#0090D2','#A17800','#F5A200','#81A914',
+                   '#F5A200','#D4003B','#509F22','#B0CE18','#FDA600','#7CA8D5','#ED8B00',
+                   '#0052A4','#009D3E','#EF7C1C','#00A5DE', '#996CAC','#CD7C2F','#747F00',
+                   '#EA545D', '#BB8336')
+```
+
+그리고 4번 코드를 다음과 같이 바꿨다.
+
+```
+ggplot(station, aes(x=lng, y=lat)) + geom_polygon(data = metro_map, aes(x=long, y=lat, group = group), fill='white', color='black') +
+  geom_point(aes(color=X.U.FEFF.line)) + scale_color_manual(values = metro_palette)
+```
+
+그리고 다시 실행해주면 다음과 같은 지도가 나온다.
+
+![](https://github.com/MountainNine/seoul-metro-map/blob/develop/picture/metro_correct_color.png)
+
+## 서울만 시각화
+
+서울, 인천, 경기 지도를 그려보니, 서울은 작게 나오고 지하철역의 점들로 거의 보이지 않았다. 이번에는 서울만 그리고, 지하철역도 서울 부근만 나오게 했다.
+
+먼저 서울만 그리게 하기 위해, 2번 코드의 마지막 줄을 다음과 같이 바꿨다.
+
+``` 
+metro_map <- subset(new_map, new_map$id <= 11740)
+```
+
+그 다음 서울 부근의 지하철역만 포함시키기 위해, 3번 코드에 다음 코드를 추가했다.
+
+```
+seoul_station <- subset(station, lat>37.41 & lat<37.72 & lng>126.73 & lng<127.27)
+```
+
+포함되지 않는 노선이 생기므로, 서울 부근 노선에 맞는 팔레트를 추가해줬다.
+
+```
+seoul_metro_palette <- c('#77C4A3','#0C8E72','#0090D2','#A17800','#F5A200','#81A914','#D4003B','#B0CE18',
+                         '#7CA8D5','#ED8B00','#0052A4','#009D3E','#EF7C1C','#00A5DE', '#996CAC',
+                         '#CD7C2F','#747F00','#EA545D', '#BB8336')
+
+```
+
+마지막으로, 4번 코드를 다음과 같이 수정했다. 이때, geom_point에 size=3을 추가하여, 점 크기도 키워줬다.
+
+```
+ggplot(seoul_station, aes(x=lng, y=lat)) + geom_polygon(data = metro_map, aes(x=long, y=lat, group = group), fill='white', color='black') +
+  geom_point(aes(color=X.U.FEFF.line), size=3) + scale_color_manual(values = seoul_metro_palette)
+```
+
+그리고 실행해주면, 다음과 같은 지도가 나온다.
+
+![](https://github.com/MountainNine/seoul-metro-map/blob/develop/picture/well-sized-metro.png)
+
+## 느낀 점
+
+지도 시각화보다 한글 인코딩 처리 과정에서 가장 힘들었다. 그리고 노선별 색깔 매핑에서 노선명 정보에 맞는 색깔을 매핑시키고 싶었지만, 실패하고 순서대로 색깔을 집어넣었다.
+여러 가지로, 아직은 많이 부족함을 느꼈다.
